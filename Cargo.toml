@@ -1,0 +1,17 @@
+[package]
+name = "auto-boya"
+authors = ["fangtaluosi <fangtaluosi@outlook.com>"]
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+colored = "2.0.4"
+nom = "7.1.3"
+serde = { version = "1.0.190", features = ["derive"] }
+tabled = "0.14.0"
+thirtyfour = "0.31.0"
+time = { version = "0.3.29", features = ["std"]}
+tokio = { version = "1.33.0", features = ["full"] }
+toml = "0.8.6"
