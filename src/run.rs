@@ -6,7 +6,15 @@ use nom::{
     sequence::{separated_pair, terminated, tuple},
     IResult,
 };
-use tabled::{settings::Style, Table, Tabled};
+use tabled::{
+    settings::{
+        // object::{Rows, Segment},
+        // Alignment, Modify,
+        Style,
+        // Width,
+    },
+    Table, Tabled,
+};
 use thirtyfour::prelude::*;
 use tokio::time::{sleep, Duration};
 
@@ -38,7 +46,8 @@ pub async fn run(set: Setting) -> WebDriverResult<()> {
         }
     };
     println!("{} {}", "[info]".green().bold(), "Check driver ...");
-    let driver = match WebDriver::new(&format!("http://localhost:{}", cfg.driver_port), caps).await {
+    let driver = match WebDriver::new(&format!("http://localhost:{}", cfg.driver_port), caps).await
+    {
         Ok(d) => d,
         Err(_) => {
             println!(
@@ -129,6 +138,8 @@ pub async fn run(set: Setting) -> WebDriverResult<()> {
     }
     let mut table = Table::new(courses);
     table.with(Style::rounded());
+    // .with(Modify::new(Rows::new(3..=3)).with(Width::wrap(40).keep_words()))
+    // .with(Modify::new(Segment::all()).with(Alignment::center()));
     println!("{table}");
 
     print!(
@@ -201,24 +212,34 @@ fn s(i: &str) -> IResult<&str, &str> {
 }
 /// Course type
 fn t(i: &str) -> IResult<&str, (&str, &str)> {
-    map(tuple((take_until(" 博雅课程-"), tag(" 博雅课程-"), rest)), |x| (x.0, x.2))(i)
+    map(
+        tuple((take_until(" 博雅课程-"), tag(" 博雅课程-"), rest)),
+        |x| (x.0, x.2),
+    )(i)
 }
 
 #[derive(Tabled)]
 struct Course {
     /// course index
+    #[tabled(rename = "Index")]
     index: usize,
     /// course state
+    #[tabled(rename = "State")]
     state: String,
     /// course type
+    #[tabled(rename = "Type")]
     t: String,
     /// course name
+    #[tabled(rename = "Name")]
     name: String,
     /// course address
+    #[tabled(rename = "Address")]
     ad: String,
     /// course time
+    #[tabled(rename = "Start time")]
     st: String,
     /// course choose time
+    #[tabled(rename = "Choose time")]
     ct: String,
 }
 
@@ -243,7 +264,7 @@ struct Course {
 
 fn parse_course(i: &str, index: usize) -> IResult<&str, Option<Course>> {
     map(many0(terminated(take_until("\n"), tag("\n"))), |x| {
-        let (_, (n,t)) = t(x[1]).unwrap();
+        let (_, (n, t)) = t(x[1]).unwrap();
         if (x[0] == "预告" || x[0] == "可选") && a(x[16]).unwrap().1 {
             Some(Course {
                 index,
@@ -264,7 +285,7 @@ fn parse_course(i: &str, index: usize) -> IResult<&str, Option<Course>> {
 fn test_term() {
     fn p(i: &str) -> IResult<&str, Option<Vec<&str>>> {
         map(many0(terminated(take_until("\n"), tag("\n"))), |x| {
-            let (_, (n,t)) = t(x[1]).unwrap();
+            let (_, (n, t)) = t(x[1]).unwrap();
             if x[0] == "可选" && a(x[16]).unwrap().1 {
                 Some(vec![
                     x[0],
@@ -287,7 +308,14 @@ fn test_term() {
     let mut b = tabled::builder::Builder::new();
     let v = v.unwrap();
     b.push_record(v);
-    b.set_header(["state", "name","type", "address", "start time", "choosing start time"]);
+    b.set_header([
+        "state",
+        "name",
+        "type",
+        "address",
+        "start time",
+        "choosing start time",
+    ]);
     let mut t = b.build();
     // let mut t = b.build();
     t.with(tabled::settings::Style::rounded());

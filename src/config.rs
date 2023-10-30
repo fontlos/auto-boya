@@ -82,7 +82,6 @@ pub fn init_config() -> Result<Config> {
 
     println!("{} {}", "[info]".green().bold(), "Init success");
 
-
     Ok(Config {
         chrome_binary,
         chrome_driver,
@@ -94,19 +93,27 @@ pub fn init_config() -> Result<Config> {
 
 pub fn get_config() -> Config {
     println!("{} {}", "[info]".green().bold(), "Read config");
-    let cfg_str =match std::fs::read_to_string("./config.toml"){
-        Ok(c)=> c,
+    let cfg_str = match std::fs::read_to_string("./config.toml") {
+        Ok(c) => c,
         Err(_) => {
-            println!("{} {}", "[warn]".yellow().bold(), "No config file found, try to initialize");
+            println!(
+                "{} {}",
+                "[warn]".yellow().bold(),
+                "No config file found, try to initialize"
+            );
             let cfg = init_config().unwrap();
             save_config(&cfg).unwrap();
             return cfg;
         }
     };
-    match toml::from_str::<Config>(&cfg_str){
-        Ok(c)=> c,
-        Err(_)=>{
-            println!("{} {}", "[warn]".yellow().bold(), "Bad config, try to initialize");
+    match toml::from_str::<Config>(&cfg_str) {
+        Ok(c) => c,
+        Err(_) => {
+            println!(
+                "{} {}",
+                "[warn]".yellow().bold(),
+                "Bad config, try to initialize"
+            );
             let cfg = init_config().unwrap();
             save_config(&cfg).unwrap();
             cfg

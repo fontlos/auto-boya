@@ -3,7 +3,7 @@ mod run;
 use anyhow::Result;
 use clap::Parser;
 use colored::Colorize;
-use tabled::{Table, settings::Style};
+use tabled::{settings::Style, Table};
 use thirtyfour::support::block_on;
 
 use config::{Cli, Command};
@@ -26,7 +26,7 @@ fn main() -> Result<()> {
             block_on(run::run(set)).unwrap();
         }
         Command::Set(set) => {
-            let cfg =  config::set_config(set);
+            let cfg = config::set_config(set);
             config::save_config(&cfg).unwrap();
             println!("{} {}", "[info]".green().bold(), "Save success");
         }
