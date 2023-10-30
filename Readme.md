@@ -3,14 +3,12 @@
 ## Prepare
 1. Install Chromium
 2. Install Chrome driver (The version matches Chromium)
-## Install
-1. Download from release
-2. Install from source (Need Rust toolchains)
-    ```bash
-    git clone https://githubfast.com/fangtaluosi/auto-boya.git
-    cd auto-boya
-    cargo build --release
-    ```
+## Install from source (Need Rust toolchains)
+```bash
+git clone https://githubfast.com/fangtaluosi/auto-boya.git
+cd auto-boya
+cargo build --release
+```
 ## Usage
 1. `auto-boya init` to configure the chromium, your account and your password
 2. `auto-boya run`, and it should print:
