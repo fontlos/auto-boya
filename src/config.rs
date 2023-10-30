@@ -142,22 +142,18 @@ pub fn set_config(set: Setting) -> Config {
     cfg
 }
 
-#[test]
-fn test_terminal() {
-    use dialoguer::{theme::ColorfulTheme, Input};
-    let _: String = Input::with_theme(&ColorfulTheme::default())
-        .with_prompt("Your email")
-        .validate_with({
-            let mut force = None;
-            move |input: &String| -> Result<(), &str> {
-                if input.contains('@') || force.as_ref().map_or(false, |old| old == input) {
-                    Ok(())
-                } else {
-                    force = Some(input.clone());
-                    Err("This is not a mail address; type the same value again to force use")
-                }
-            }
-        })
-        .interact_text()
-        .unwrap();
-}
+// #[test]
+// fn test_terminal() {
+//     use dialoguer::{theme::ColorfulTheme, Input};
+//     let choose: usize = Input::with_theme(&ColorfulTheme::default())
+//         .with_prompt("Waiting for input index... ")
+//         .validate_with(|n: &usize|{
+//             if *n < 10{
+//                 Ok(())
+//             }else{
+//                 Err("bad")
+//             }
+//         })
+//         .interact_text()
+//         .unwrap();
+// }

@@ -4,11 +4,11 @@ use anyhow::Result;
 use clap::Parser;
 use colored::Colorize;
 use tabled::{settings::Style, Table};
-use thirtyfour::support::block_on;
 
 use config::{Cli, Command};
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     let cli = Cli::parse();
     match cli.command {
         Command::Init => {
@@ -23,7 +23,7 @@ fn main() -> Result<()> {
             println!("{t}");
         }
         Command::Run(set) => {
-            block_on(run::run(set)).unwrap();
+            run::run(set).await.unwrap();
         }
         Command::Set(set) => {
             let cfg = config::set_config(set);

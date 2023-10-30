@@ -1,4 +1,5 @@
 use colored::Colorize;
+use dialoguer::{theme::ColorfulTheme, Input};
 use nom::{
     bytes::complete::{tag, take_until},
     combinator::{map, rest},
@@ -8,15 +9,15 @@ use nom::{
 };
 use tabled::{
     settings::{
-        // object::{Rows, Segment},
-        // Alignment, Modify,
-        Style,
-        // Width,
+        object::{Rows, Segment},
+        Alignment, Modify, Style, Width,
     },
     Table, Tabled,
 };
 use thirtyfour::prelude::*;
 use tokio::time::{sleep, Duration};
+
+use std::process::{Command, Stdio};
 
 use crate::config::{set_config, Setting};
 
@@ -26,13 +27,30 @@ const URL: &str =
 pub async fn run(set: Setting) -> WebDriverResult<()> {
     let cfg = set_config(set);
 
+    match Command::new(&cfg.chrome_driver)
+        .arg(&cfg.driver_port)
+        .stdout(Stdio::null())
+        .spawn()
+    {
+        Ok(_) => {
+            println!("{} {}", "[info]".green().bold(), "Start Chrome driver");
+        }
+        Err(e) => {
+            println!(
+                "{} Can't start Chrome driver because {}",
+                "[error]".red().bold(),
+                e
+            )
+        }
+    }
+
     let mut caps = DesiredCapabilities::chrome();
     caps.add_chrome_arg("headless")?;
-    // 航子你的无头检测真垃圾, 加个agent就能过
+    // 防止headless检测
     // caps.add_chrome_arg("--window-size=1920,1080")?;
     caps.add_chrome_arg(r#"user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"#)?;
     caps.add_chrome_option("excludeSwitches", ["enable-automation"])?;
-    caps.add_chrome_option("useAutomationExtension", false)?;
+    // caps.add_chrome_option("useAutomationExtension", false)?;
     println!("{} {}", "[info]".green().bold(), "Check Chrome ...");
     match caps.set_binary(&cfg.chrome_binary) {
         Ok(_) => (),
@@ -137,31 +155,23 @@ pub async fn run(set: Setting) -> WebDriverResult<()> {
         };
     }
     let mut table = Table::new(courses);
-    table.with(Style::rounded());
-    // .with(Modify::new(Rows::new(3..=3)).with(Width::wrap(40).keep_words()))
-    // .with(Modify::new(Segment::all()).with(Alignment::center()));
+    table
+        .with(Style::rounded())
+        .with(Modify::new(Rows::new(3..=3)).with(Width::wrap(40).keep_words()))
+        .with(Modify::new(Segment::all()).with(Alignment::center()));
     println!("{table}");
 
-    print!(
-        "{} {}",
-        "[info]".green().bold(),
-        "Waiting for input index... "
-    );
-
-    let mut choose = String::new();
-
-    std::io::stdin().read_line(&mut choose).unwrap();
-    let index = match choose.trim().parse::<usize>() {
-        Ok(c) => c,
-        Err(_) => {
-            println!(
-                "{} {}",
-                "[error]".red().bold(),
-                "Invalid input. It is not a number"
-            );
-            return Ok(());
-        }
-    };
+    let index: usize = Input::with_theme(&ColorfulTheme::default())
+        .with_prompt("Waiting for input index... ")
+        .validate_with(|n: &usize| {
+            if *n < course_list.len() {
+                Ok(())
+            } else {
+                Err("Invalid input. It is out of range")
+            }
+        })
+        .interact_text()
+        .unwrap();
 
     let chosen_course = match course_list.get(index) {
         Some(c) => c,
@@ -193,7 +203,7 @@ pub async fn run(set: Setting) -> WebDriverResult<()> {
         Err(_) => println!("{} {}", "[error]".green().bold(), "Choose failed"),
     };
 
-    sleep(Duration::from_secs(2)).await;
+    sleep(Duration::from_secs(1)).await;
 
     // Always explicitly close the browser.
     driver.quit().await?;
