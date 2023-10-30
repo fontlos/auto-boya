@@ -1,4 +1,4 @@
-# BUAA Boya course automation tool
+# BUAA Boya automatic course enrollment tool
 > It's just a learning project, invaded and deleted
 ## Prepare
 1. Install Chromium

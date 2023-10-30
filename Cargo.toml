@@ -1,7 +1,7 @@
 [package]
 name = "auto-boya"
 authors = ["fangtaluosi <fangtaluosi@outlook.com>"]
-description = "BUAA Boya course automation tool"
+description = "BUAA Boya automatic course enrollment tool"
 version = "0.1.0"
 edition = "2021"
 
