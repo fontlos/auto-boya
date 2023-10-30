@@ -6,7 +6,7 @@ use nom::{
     sequence::{separated_pair, terminated, tuple},
     IResult,
 };
-use tabled::{settings::Style, builder::Builder, Table, Tabled};
+use tabled::{settings::Style, Table, Tabled};
 use thirtyfour::prelude::*;
 use tokio::time::{sleep, Duration};
 
@@ -127,9 +127,6 @@ pub async fn run(set: Setting) -> WebDriverResult<()> {
             }
         };
     }
-
-    let mut b = Builder::new();
-    b.set_header(["Index", "State", "Name", "Address", "Start Time", "Chooss Time"]);
     let mut table = Table::new(courses);
     table.with(Style::rounded());
     println!("{table}");
@@ -225,6 +222,25 @@ struct Course {
     ct: String,
 }
 
+// fn parse_course2<'a>(i: &'a str, index: &'a str) -> IResult<&'a str, Option<Vec<&'a str>>> {
+//     map(many0(terminated(take_until("\n"), tag("\n"))), |x| {
+//         let (_, (n,t)) = t(x[1]).unwrap();
+//         if (x[0] == "预告" || x[0] == "可选") && a(x[16]).unwrap().1 {
+//             Some(vec![
+//                 index,
+//                 x[0],
+//                 t,
+//                 n,
+//                 s(x[2]).unwrap().1,
+//                 s(x[5]).unwrap().1,
+//                 s(x[12]).unwrap().1,
+//             ])
+//         } else {
+//             None
+//         }
+//     })(i)
+// }
+
 fn parse_course(i: &str, index: usize) -> IResult<&str, Option<Course>> {
     map(many0(terminated(take_until("\n"), tag("\n"))), |x| {
         let (_, (n,t)) = t(x[1]).unwrap();
@@ -272,7 +288,7 @@ fn test_term() {
     let v = v.unwrap();
     b.push_record(v);
     b.set_header(["state", "name","type", "address", "start time", "choosing start time"]);
-    let mut t = b.index().transpose().build();
+    let mut t = b.build();
     // let mut t = b.build();
     t.with(tabled::settings::Style::rounded());
     // let t = t.to_string();
